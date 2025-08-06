@@ -1,6 +1,6 @@
 import express from "express"
 import "dotenv/config"
-import http, { Server } from "http"
+import http from "http"
 import {Server} from "socket.io" 
 import cors from "cors"
 
@@ -13,7 +13,14 @@ app.get('/',(req,res)=>{
 })
 
 const io = new Server(server,{
-    cors:'http://localhost:5173',
+    cors:process.env.CLIENT_ORIGIN||'http://localhost:5173',
+})
+
+io.on("connection",(socket)=>{
+    console.log("User connected :",socket.id);
+    socket.on("send-message",(data)=>{
+        socket.broadcast.emit("receive-message",data)
+    })
 })
 
 const port = process.env.PORT || 3000;
